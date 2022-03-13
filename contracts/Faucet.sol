@@ -19,7 +19,7 @@ contract Faucet is IFaucet, Owned, Logger {
     return "Hello World";
   }
 
-  function addFunds() external payable {
+  function addFunds() external payable override {
     address funder = msg.sender;
 
     if (!funders[funder]) {
@@ -32,6 +32,7 @@ contract Faucet is IFaucet, Owned, Logger {
   function withdraw(uint256 withdrawAmount)
     external
     payable
+    override
     onlyOwner
     limitWithdraw(withdrawAmount)
   {
