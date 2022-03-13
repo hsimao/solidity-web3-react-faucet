@@ -6,8 +6,6 @@ contract Faucet {
   mapping(address => bool) private funders;
   mapping(uint256 => address) private lutFunders;
 
-  receive() external payable {}
-
   function addFunds() external payable {
     address funder = msg.sender;
 
@@ -16,6 +14,11 @@ contract Faucet {
       funders[funder] = true;
       lutFunders[index] = funder;
     }
+  }
+
+  function withdraw(uint256 withdrawAmount) external {
+    require(withdrawAmount <= 1 ether, "Cannot withdraw more than 1 ether");
+    payable(msg.sender).transfer(withdrawAmount);
   }
 
   function getAllFunders() external view returns (address[] memory) {
