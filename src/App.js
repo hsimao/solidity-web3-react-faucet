@@ -6,6 +6,7 @@ import { loadContract } from "./utils/load-contract";
 
 function App() {
   const [web3Api, setWeb3Api] = useState({});
+  const [balance, setBalance] = useState(null);
   const [account, setAccount] = useState(null);
 
   useEffect(() => {
@@ -36,6 +37,16 @@ function App() {
     web3Api.web3 && getAccounts();
   }, [web3Api.web3]);
 
+  useEffect(() => {
+    const loadBalance = async () => {
+      const { contract, web3 } = web3Api;
+      const balance = await web3.eth.getBalance(contract.address);
+      setBalance(web3.utils.fromWei(balance, "ether"));
+    };
+
+    web3Api.contract && loadBalance();
+  }, [web3Api]);
+
   const handleConnect = () => {
     web3Api.provider.request({ method: "eth_requestAccounts" });
   };
@@ -59,7 +70,7 @@ function App() {
           </div>
 
           <div className="balance-view is-size-2 my-4">
-            Current Balance: <strong>10</strong> ETH
+            Current Balance: <strong>{balance}</strong> ETH
           </div>
 
           <button className="button is-primary mr-2">Donate</button>
