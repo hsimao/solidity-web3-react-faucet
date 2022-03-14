@@ -2,38 +2,42 @@ import { useEffect, useState } from "react";
 import "./App.css";
 import Web3 from "web3";
 import detectEthereumProvider from "@metamask/detect-provider";
+import { loadContract } from "./utils/load-contract";
 
 function App() {
-  const [web3, setWeb3] = useState(null);
-  const [provider, setProvider] = useState(null);
+  const [web3Api, setWeb3Api] = useState({});
   const [account, setAccount] = useState(null);
 
   useEffect(() => {
     const loadProvider = async () => {
-      let tempProvider = await detectEthereumProvider();
+      const provider = await detectEthereumProvider();
+      const contract = await loadContract("Faucet", provider);
 
-      if (tempProvider) {
-        setWeb3(new Web3(tempProvider));
-        setProvider(tempProvider);
+      if (provider) {
+        setWeb3Api({
+          web3: new Web3(provider),
+          provider,
+          contract
+        });
       } else {
         console.error("Please, install Metamask.");
       }
     };
 
     loadProvider();
-  }, [provider]);
+  }, []);
 
   useEffect(() => {
     const getAccounts = async () => {
-      const accounts = await web3.eth.getAccounts();
+      const accounts = await web3Api.web3.eth.getAccounts();
       setAccount(accounts[0]);
     };
 
-    web3 && getAccounts();
-  }, [web3]);
+    web3Api.web3 && getAccounts();
+  }, [web3Api.web3]);
 
   const handleConnect = () => {
-    provider.request({ method: "eth_requestAccounts" });
+    web3Api.provider.request({ method: "eth_requestAccounts" });
   };
 
   return (
