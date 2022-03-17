@@ -5,7 +5,12 @@ import detectEthereumProvider from "@metamask/detect-provider";
 import { loadContract } from "./utils/load-contract";
 
 function App() {
-  const [web3Api, setWeb3Api] = useState({});
+  const [web3Api, setWeb3Api] = useState({
+    provider: null,
+    isProviderLoaded: false,
+    web3: null,
+    contract: null
+  });
   const [balance, setBalance] = useState(null);
   const [account, setAccount] = useState(null);
   const [shouldReload, reload] = useState(null);
@@ -27,9 +32,11 @@ function App() {
         setWeb3Api({
           web3: new Web3(provider),
           provider,
-          contract
+          contract,
+          isProviderLoaded: true
         });
       } else {
+        setWeb3Api({ ...web3Api, isProviderLoaded: true });
         console.error("Please, install Metamask.");
       }
     };
@@ -100,17 +107,23 @@ function App() {
     <>
       <div className="faucet-wrapper">
         <div className="faucet">
-          <div className="is-flex is-align-items-center">
-            <span className="mr-2">
-              <strong>Account: </strong>
-            </span>
+          {web3Api.isProviderLoaded ? (
+            <>
+              <div className="is-flex is-align-items-center">
+                <span className="mr-2">
+                  <strong>Account: </strong>
+                </span>
 
-            {account
-              ? account
-              : !web3Api.provider
-              ? renderInstallMetamask()
-              : renderConnectWallet()}
-          </div>
+                {account
+                  ? account
+                  : !web3Api.provider
+                  ? renderInstallMetamask()
+                  : renderConnectWallet()}
+              </div>
+            </>
+          ) : (
+            <span>Looking for Web3...</span>
+          )}
 
           <div className="balance-view is-size-2 my-4">
             Current Balance: <strong>{balance}</strong> ETH
