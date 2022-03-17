@@ -140,14 +140,14 @@ function App() {
             onClick={addFunds}
             className="button is-primary mr-2"
           >
-            Donate
+            Donate 1 ETH
           </button>
           <button
             disabled={!canConnectToContract}
             onClick={withdraw}
             className="button is-link"
           >
-            Withdraw
+            Withdraw 0.1 ETH
           </button>
         </div>
       </div>
