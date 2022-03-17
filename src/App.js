@@ -13,15 +13,16 @@ function App() {
   const reloadEffect = useCallback(() => reload(!shouldReload), [shouldReload]);
 
   const setAccountListener = (provider) => {
-    provider.on("accountsChanged", (accounts) => setAccount(accounts[0]));
+    provider.on("accountsChanged", () => window.location.reload());
   };
 
   useEffect(() => {
     const loadProvider = async () => {
       const provider = await detectEthereumProvider();
-      const contract = await loadContract("Faucet", provider);
 
       if (provider) {
+        const contract = await loadContract("Faucet", provider);
+
         setAccountListener(provider);
         setWeb3Api({
           web3: new Web3(provider),
@@ -76,6 +77,25 @@ function App() {
     reloadEffect();
   }, [web3Api, account, reloadEffect]);
 
+  const renderInstallMetamask = () => {
+    return (
+      <div className="notification is-warning is-size-6 is-rounded">
+        <span>Wallet is not detected! </span>
+        <a target="_blank" rel="noreferrer" href="https://docs.metamask.io">
+          Install Metamask
+        </a>
+      </div>
+    );
+  };
+
+  const renderConnectWallet = () => {
+    return (
+      <button className="button is-small" onClick={handleConnect}>
+        Connect Wallet
+      </button>
+    );
+  };
+
   return (
     <>
       <div className="faucet-wrapper">
@@ -85,23 +105,29 @@ function App() {
               <strong>Account: </strong>
             </span>
 
-            {account ? (
-              account
-            ) : (
-              <button className="button is-small" onClick={handleConnect}>
-                Connect Wallet
-              </button>
-            )}
+            {account
+              ? account
+              : !web3Api.provider
+              ? renderInstallMetamask()
+              : renderConnectWallet()}
           </div>
 
           <div className="balance-view is-size-2 my-4">
             Current Balance: <strong>{balance}</strong> ETH
           </div>
 
-          <button onClick={addFunds} className="button is-primary mr-2">
+          <button
+            disabled={!account}
+            onClick={addFunds}
+            className="button is-primary mr-2"
+          >
             Donate
           </button>
-          <button onClick={withdraw} className="button is-link">
+          <button
+            disabled={!account}
+            onClick={withdraw}
+            className="button is-link"
+          >
             Withdraw
           </button>
         </div>
